@@ -23,6 +23,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
 import java.util.Random;
+import android.util.Base64;
+import android.graphics.Bitmap;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
@@ -91,6 +93,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             String light = null;
             String color = null;
             String icon = null;
+            String largeicon = null;
             String channelId = null;
             String visibility = null;
             String priority = null;
@@ -133,6 +136,8 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                 if(data.containsKey("notification_android_icon")) icon = data.get("notification_android_icon");
                 if(data.containsKey("notification_android_visibility")) visibility = data.get("notification_android_visibility");
                 if(data.containsKey("notification_android_priority")) priority = data.get("notification_android_priority");
+                // large icon
+                if(data.containsKey("notification_android_largeicon")) largeicon = data.get("notification_android_largeicon");
             }
 
             if (TextUtils.isEmpty(id)) {
@@ -150,6 +155,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             Log.d(TAG, "Light: " + light);
             Log.d(TAG, "Color: " + color);
             Log.d(TAG, "Icon: " + icon);
+            Log.d(TAG, "Large Icon: " + largeicon);
             Log.d(TAG, "Channel Id: " + channelId);
             Log.d(TAG, "Visibility: " + visibility);
             Log.d(TAG, "Priority: " + priority);
@@ -157,15 +163,15 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
             if (!TextUtils.isEmpty(body) || !TextUtils.isEmpty(title) || (data != null && !data.isEmpty())) {
                 boolean showNotification = (FirebasePlugin.inBackground() || !FirebasePlugin.hasNotificationsCallback() || foregroundNotification) && (!TextUtils.isEmpty(body) || !TextUtils.isEmpty(title));
-                sendMessage(remoteMessage, data, messageType, id, title, body, showNotification, sound, vibrate, light, color, icon, channelId, priority, visibility);
+                sendMessage(remoteMessage, data, messageType, id, title, body, showNotification, sound, vibrate, light, color, icon, largeicon, channelId, priority, visibility);
             }
         }catch (Exception e){
             FirebasePlugin.handleExceptionWithoutContext(e);
         }
     }
 
-    private void sendMessage(RemoteMessage remoteMessage, Map<String, String> data, String messageType, String id, String title, String body, boolean showNotification, String sound, String vibrate, String light, String color, String icon, String channelId, String priority, String visibility) {
-        Log.d(TAG, "sendMessage(): messageType="+messageType+"; showNotification="+showNotification+"; id="+id+"; title="+title+"; body="+body+"; sound="+sound+"; vibrate="+vibrate+"; light="+light+"; color="+color+"; icon="+icon+"; channel="+channelId+"; data="+data.toString());
+    private void sendMessage(RemoteMessage remoteMessage, Map<String, String> data, String messageType, String id, String title, String body, boolean showNotification, String sound, String vibrate, String light, String color, String icon, String largeicon, String channelId, String priority, String visibility) {
+        Log.d(TAG, "sendMessage(): messageType="+messageType+"; showNotification="+showNotification+"; id="+id+"; title="+title+"; body="+body+"; sound="+sound+"; vibrate="+vibrate+"; light="+light+"; color="+color+"; icon="+icon+"; largeicon="+largeicon+"; channel="+channelId+"; data="+data.toString());
         Bundle bundle = new Bundle();
         for (String key : data.keySet()) {
             bundle.putString(key, data.get(key));
@@ -179,6 +185,7 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
         this.putKVInBundle("light", light, bundle);
         this.putKVInBundle("color", color, bundle);
         this.putKVInBundle("icon", icon, bundle);
+        this.putKVInBundle("largeicon", largeicon, bundle);
         this.putKVInBundle("channel_id", channelId, bundle);
         this.putKVInBundle("priority", priority, bundle);
         this.putKVInBundle("visibility", visibility, bundle);
@@ -278,14 +285,20 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 int defaultLargeIconResID = getResources().getIdentifier(defaultLargeIconName, "drawable", getPackageName());
                 int customLargeIconResID = 0;
-                if(icon != null){
+                if (largeicon != null) {
+                    customLargeIconResID = getResources().getIdentifier(largeicon, "drawable", getPackageName());
+                } else if(icon != null){
                     customLargeIconResID = getResources().getIdentifier(icon+"_large", "drawable", getPackageName());
                 }
 
                 int largeIconResID;
                 if (customLargeIconResID != 0) {
                     largeIconResID = customLargeIconResID;
-                    Log.d(TAG, "Large icon: custom="+icon);
+                    if (largeicon != null) {
+                        Log.d(TAG, "Large icon: custom="+largeicon);
+                    } else {
+                        Log.d(TAG, "Large icon: custom="+icon+"_large");
+                    }
                 }else if (defaultLargeIconResID != 0) {
                     Log.d(TAG, "Large icon: default="+defaultLargeIconName);
                     largeIconResID = defaultLargeIconResID;
@@ -293,8 +306,9 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
                     Log.d(TAG, "Large icon: application");
                     largeIconResID = getApplicationInfo().icon;
                 }
+               
                 notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), largeIconResID));
-            }
+        }
 
             // Color
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {

@@ -225,9 +225,9 @@ This plugin sets a default minimum iOS version in the Pod file (see `<preference
     cordova plugin add cordova-plugin-firebasex --variable IOS_MIN_VERSION=10.0
 
 #### Cocoapods
-This plugin relies on `cordova@9`/`cordova-ios@5` support for the [CocoaPods dependency manager]( https://cocoapods.org/) in order to satisfy the iOS Firebase SDK library dependencies.
+This plugin relies on `cordova@9`/`cordova-ios@5` support for the [CocoaPods dependency manager]( https://cocoapods.org/) in order to satify the iOS Firebase SDK library dependencies.
 
-Therefore please make sure you have Cocoapods installed in your iOS build environment - setup instructions can be found [here](https://cocoapods.org/).
+Therefore please make sure you have Cocopods installed in your iOS build environemnt - setup instructions can be found [here](https://cocoapods.org/).
 Also make sure your local Cocoapods repo is up-to-date by running `pod repo update`.
 
 If building your project in Xcode, you need to open `YourProject.xcworkspace` (not `YourProject.xcodeproj`) so both your Cordova app project and the Pods project will be loaded into Xcode.
@@ -699,8 +699,9 @@ On Android:
 The following Android-specific keys are supported and should be placed inside the `data` section:
 
 - `notification_android_icon` - name of a [custom notification icon](#android-custom-notification-icons) in the drawable resources
-    - if not specified, the plugin will use the default `notification_icon` if it exists; otherwise the default app icon will be displayed
-    - if a [large icon](#android-large-notification-icon) has been defined, it will also be displayed in the system notification.
+    - if not specified, the plugin will use the default `notification_icon` if it exists; otherwise the default app icon will be displayed.
+- `notification_android_largeicon` - name of a [custom large notification icon](#android-large-notification-icon) in the drawable resources
+  - if not specified, the plugin will use the default `notification_icon_large` if it exists; otherwise the default app icon will be displayed.
 - `notification_android_color` - the [color accent](#android-notification-color) to use for the small notification icon
     - if not specified, the default color accent will be used
 - `notification_android_channel_id` - ID of the [notification channel](#android-notification-channels) to use to display the notification
