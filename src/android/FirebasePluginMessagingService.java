@@ -23,8 +23,6 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
 import java.util.Random;
-import android.util.Base64;
-import android.graphics.Bitmap;
 
 public class FirebasePluginMessagingService extends FirebaseMessagingService {
 
