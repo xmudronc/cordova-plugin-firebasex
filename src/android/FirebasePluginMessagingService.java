@@ -199,12 +199,19 @@ public class FirebasePluginMessagingService extends FirebaseMessagingService {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             // Channel
-            if(channelId == null || FirebasePlugin.channelExists(channelId)){
+            if(channelId == null/* || FirebasePlugin.channelExists(channelId)*/){
                 channelId = FirebasePlugin.defaultChannelId;
             }
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                 Log.d(TAG, "Channel ID: "+channelId);
             }
+
+            NotificationManager nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+            
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "Default",
+                    NotificationManager.IMPORTANCE_HIGH);
+                    Log.d(TAG, "NotMan ID: "+channel);
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
             notificationBuilder
