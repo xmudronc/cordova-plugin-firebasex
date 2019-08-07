@@ -161,6 +161,7 @@
     NSString* body = nil;
     NSString* sound = nil;
     NSString* badge = nil;
+    NSString* icon = nil;
     
     // Extract APNS notification keys
     NSDictionary* aps = [messageData objectForKey:@"aps"];
@@ -193,6 +194,9 @@
     if([messageData objectForKey:@"notification_ios_badge"] != nil){
         badge = [messageData objectForKey:@"notification_ios_badge"];
     }
+    if([messageData objectForKey:@"notification_android_largeicon"] != nil){
+        icon = [messageData objectForKey:@"notification_android_largeicon"];
+    }
    
     if(title == nil || body == nil){
         return;
@@ -203,6 +207,18 @@
             UNMutableNotificationContent *objNotificationContent = [[UNMutableNotificationContent alloc] init];
             objNotificationContent.title = [NSString localizedUserNotificationStringForKey:title arguments:nil];
             objNotificationContent.body = [NSString localizedUserNotificationStringForKey:body arguments:nil];
+
+            NSURL *imageURL = [NSURL URLWithString:@"file:/path/"+icon];
+            NSError *error;
+            UNNotificationAttachment *largeIcon = [UNNotificationAttachment attachmentWithIdentifier:@"image" URL:imageURL options:nil error:&error];
+            if (error)
+            {
+                NSLog(@"error while storing image attachment in notification: %@", error);
+            }
+            if (largeIcon)
+            {
+                objNotificationContent.attachment = @[largeIcon];
+            }
             
             NSDictionary* alert = [[NSDictionary alloc] initWithObjectsAndKeys:
                                    title, @"title",
